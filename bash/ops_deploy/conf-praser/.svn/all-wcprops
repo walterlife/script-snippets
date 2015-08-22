@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser
+END
+cp_conf.sh
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/cp_conf.sh
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/__init__.py
+END
+settings.py
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/settings.py
+END
+conf_praser.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/conf_praser.py
+END

@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+bak_date=$(date +"%m%d%H%M%S")
+
+host="localhost"
+user="turtlemgr"
+pass="GCm13@Pw6Ucl23d"
+pass="Turt13@Pw6Uclod"
+db="DB_TURTLE_"
+db_start=0
+db_end=9
+
+local_bak_path="/opt/shootao/turtle/bak/database/mysql/db_turtle/"
+#center_bak_path="/opt/walter/center_db_bak/"
+
+#center_host="10.1.15.19"
+#center_user="walter"
+#center_passwd="walter"
+#center_port=22000
+
+function bak_the_database()          
+{
+    bak_path=$1
+    db=$2
+    suffix=$3
+    sql_host=$4
+    sql_user=$5
+    sql_pwd=$6
+    if [ "/" != ${bak_path: -1} ];then
+        bak_path="${bak_path}/" 
+    fi
+    bak_tb_crt_file="${bak_path}${db}${suffix}_CREATE.sql"
+    bak_tb_dt_file="${bak_path}${db}${suffix}_DATA.sql"
+    echo "set autocommit = 0" >> $bak_tb_crt_file
+    mysqldump -h$sql_host -u$sql_user -p$sql_pwd --no-data --default-character-set=utf8 --add-drop-database --lock-tables=false -B $db$suffix > $bak_tb_crt_file
+    mysqldump -h$sql_host -u$sql_user -p$sql_pwd --no-create-info --no-create-db --default-character-set=utf8 --lock-tables=false -B $db$suffix > $bak_tb_dt_file
+    echo "commit" >> $bak_tb_crt_file
+    cd $bak_path
+    tar -cf "$bak_date.tar.gz" ./*.sql
+}
+
+function bak_data_to_data_center()          
+{                                            
+    local_data_path=$1
+    center_data_path=$2
+    center_host=$3
+    center_user=$4
+    center_passwd=$5
+    center_port=$6
+    if [ "/" != ${local_data_path: -1} ];then
+        local_data_path="${local_data_path}/" 
+    fi
+    if [ "/" != ${center_data_path: -1} ];then
+        center_data_path="${center_data_path}/"
+    fi
+    the_cmd="sshpass -p${center_passwd} scp -P${center_port} ${local_data_path} ${center_user}@${center_host}:${center_data_path}"
+    $the_cmd
+}
+
+function main()
+{
+    dtx=0
+	local local_bak_path=$local_bak_path
+	local bak_date=$bak_date
+	
+    cd $local_bak_path && mkdir ${bak_date}
+
+    for dtx in `seq $db_start $db_end`
+    do
+        bak_the_database ${local_bak_path}${bak_date} $db $dtx ${host} ${user} ${pass}
+        if [ $? -ne 0 ]
+        then
+            echo "BAK DATABASE" $db_$dtx "FAIL!!"  >> bak_error.log
+        fi
+    done
+
+    #bak_data_to_data_center "${local_bak_path}${bak_date}/$bak_date.tar.gz" ${center_bak_path} ${center_host} ${center_user} ${center_passwd} ${center_port}
+    #if [ $? -ne 0 ]
+    #then
+    #    echo "LOAD DATABASE BAK TO CENTER FAIL!!"  >> bak_error.log
+    #fi
+}
+
+main $local_bak_path $bak_date

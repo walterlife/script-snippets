@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+########################################################################
+#    File Name: init_remote_project_ops_env.sh
+# 
+#       Author: Shootao Shanghai,Inc.
+#         Mail: aceway@shootao.com
+# Created Time: 2015年02月10日 星期二 15时52分51秒
+#  Description: ...
+# 
+########################################################################
+. ./base.sh
+
+#
+#远程传输数据的基础命令
+#
+#cpcmd="rsync"
+cpcmd="scp"
+
+#发布中心控制服务器
+#chost="10.1.1.224"
+chost="183.131.144.62"
+chost="10.1.14.216"
+cport=22
+#cuser="shootao"
+#cpass="aturtle@shootao"
+#ckey="/opt/aceway/.ssh/shootao_rsa"
+#cdata="/home/aceway/tmp/libonline.so"
+#from_local="/opt/aceway/tmp/test/"
+#exclude="./excude_list.txt"
+
+#
+#业务目标服务器
+#
+#dhost可以是 以空格区分的服务器列表的字符串; 也可以是一个文件名，里面一行存一个服务器信息：ip port --- 方便大批量操作服务器
+#dhost="10.1.1.99"
+#dport=22000
+#duser="aceway"
+#dpass="4rfvCDE#"
+#dkey="/home/aceway/.ssh/shootao_rsa"
+#ddata="/home/aceway/test/"
+to_remote="/opt/shootao/turtle/bin"
+
+project_name="忍者神龟"
+
+echo -e "将在远程服务器${FG_GREEN}[${chost}]${END}上初始化${FG_GREEN}[${project_name}]${END}后台${FG_GREEN} 运维 ${END}环境..."
+
+echo -e "${FG_YELLOW}请输入远端服务器${FG_RED}[${chost}]${FG_YELLOW}的账户名${END}"
+read -p  "User: " cuser
+
+echo -e "${FG_YELLOW}请输入该账户的密码${END}"
+read -s -p "Passwd: "  cpass
+
+if [ ! -z ${cuser} ] && [ ! -z ${cpass} ]; then
+    #1 将本地初始化文件上传到指定服务器
+    from_local="./project_ops_init.sh"
+    dist_from_local_to_remote_with_pass ${cpcmd} ${chost} ${cport} ${cuser} ${cpass} ${from_local} ${to_remote}
+
+    #2 在指定服上执行初始化脚本 (刚刚上传的文件)
+    exec_on_remote_from_local_with_pass ${chost} ${cport} ${cuser} ${cpass} bash ${to_remote}/project_ops_init.sh ${cpass}
+else
+    echo -e "${FG_RED}账户信息输入错误.${END}"
+fi

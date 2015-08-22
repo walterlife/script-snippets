@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+########################################################################
+#    File Name: init_remote_project_dev_env.sh
+# 
+#       Author: Shootao Shanghai,Inc.
+#         Mail: aceway@shootao.com
+# Created Time: 2015年02月10日 星期二 15时52分51秒
+#  Description: ...
+# 
+########################################################################
+set -u
+set -e
+set -o errexit
+. ./base.sh
+
+project_name="忍者神龟"
+
+#远程服务器
+chost="10.1.15.19"      #也可以考虑将 该参数 从终端 input
+cport=22000
+ckey="/opt/aceway/.ssh/shootao_rsa"
+from_local="/opt/aceway/tmp/test/"
+exclude="./excude_list.txt"
+
+
+#
+#远程传输数据的基础命令
+#
+cpcmd="rsync"
+cpcmd="scp"
+
+echo -e "将在远程服务器${FG_GREEN}[${chost}]${END}上初始化${FG_GREEN}[${project_name}]${END}后台${FG_GREEN} 开发 ${END}环境..."
+
+echo -e "${FG_YELLOW}请输入远端服务器${FG_RED}[${chost}]${FG_YELLOW}的账户名${END}"
+read -p  ":" cuser
+to_remote="/home/${cuser}/"
+
+echo -e "${FG_YELLOW}请输入该账户的密码${END}"
+read -s -p ":"  cpass
+
+if [ ! -z ${cuser} ] && [ ! -z ${cpass} ]; then
+    # 1,  将本地初始化文件上传到 远端
+    from_local="./project_dev_init.sh"
+    dist_from_local_to_remote_with_pass ${cpcmd} ${chost} ${cport} ${cuser} ${cpass} ${from_local} ${to_remote}
+
+    # 2 上传自己定制的开发环境
+    local_data="./data/init-dev"            ###############################
+    dist_from_local_to_remote_with_pass ${cpcmd} ${chost} ${cport} ${cuser} ${cpass} ${local_data} ${to_remote}
+
+    # 3, 在远端执行初始化文件 (刚刚上传的文件)
+    exec_on_remote_from_local_with_pass ${chost} ${cport} ${cuser} ${cpass} bash ${to_remote}/project_dev_init.sh ${cpass}
+    sleep 1
+    exec_on_remote_from_local_with_pass ${chost} ${cport} ${cuser} ${cpass} rm ${to_remote}/project_dev_init.sh 
+else
+    echo -e "${FG_RED}账户信息输入错误.${END}"
+fi

@@ -1,0 +1,375 @@
+#!/usr/bin/env bash 
+#set -x
+
+if [ $# -lt 3 ]; then
+    usage
+fi
+
+NET_FLAG=$1
+shift
+
+if [ $NET_FLAG -eq 1 ]; then
+    . ./setting_outnner.sh
+else
+    . ./setting_inner.sh
+fi
+
+. functions.sh
+. init_ip_map
+
+# 查看服务信息
+if [ $1 == "info" ]; then
+    shift
+    if [ $1 == "all" ]; then
+        cat "${OPS_SERVICE_MAP}"
+    else
+        hash_get_all $1 
+    fi
+    exit
+fi
+
+OLD_IFS=$IFS
+# 发布服务
+if [ $1 == "rs" ]; then
+    shift
+
+    if [ $# -eq 1 ]; then
+        # 发布所有ip上的所有服务
+        if [ $1 == "all" ]; then
+            init_config
+            exc_list_file="./exclude.list"
+
+            IFS=$'\n'
+            for ser_info in `cat "${OPS_SERVICE_MAP}"`; do
+                IFS=' ' ser_info=($ser_info)
+
+                SV_HOST="${ser_info[0]}"
+
+                sers=${ser_info[1]}
+                IFS=',' read -a ser_arr <<< "${sers}"
+                for ser in ${ser_arr[@]}; do
+                    SV_NAME="${ser}"
+                    local_path="../build/${SV_NAME}"
+                    rsync_for_release ${local_path} ${RS_PATH} ${RS_USER} ${RS_HOST} ${RS_PORT} ${RS_PASSWD} ${exc_list_file} ${SV_HOST} "${YEAR}-${MONTH}-${DAY}" 
+
+                    # 从远程的中心服务器
+                    if [ ! ${FIRST_DEPOLY} -eq 1 ]; then
+                        remote_stop ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                    fi
+
+                    # 从远程的中心服务器， 分发程序到各个 业务服务器上  
+                    remote_distribute ${SV_ROOT_PATH} ${SV_NAME} ${RS_PATH} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} "${YEAR}-${MONTH}-${DAY}"
+                    # 从远程的中心服务器， 启动各个 业务服务器上的程序
+                    remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done 
+        else
+            # 发布指定服务名的所有ip上的服务，同台ip上多个service 则带后缀
+            IFS=' '
+            ret=`hash_get_all_ip_by_service $1`
+            if [ -z "${ret}" ]; then
+                echo "SERVICE $1 NOT DEDPLOY ON DEV OPS!!!"
+                exit
+            fi
+            
+            if [ "${1}" == "online" ]; then
+                init_config
+            fi
+            exc_list_file="./exclude.list"
+            IFS=$'\n' 
+            for ser_info in $ret; do
+                IFS=' ' ser_info=($ser_info)
+                ser_num=${#ser_info[*]}
+
+                SV_HOST="${ser_info[0]}"
+                SV_NAME="$1"
+
+                for idx in `seq 1 $ser_num`; do
+                    local_path="../build/${SV_NAME}"
+                    rsync_for_release ${local_path} ${RS_PATH} ${RS_USER} ${RS_HOST} ${RS_PORT} ${RS_PASSWD} ${exc_list_file} ${SV_HOST} "${YEAR}-${MONTH}-${DAY}" 
+
+                    # 从远程的中心服务器
+                    if [ ! ${FIRST_DEPOLY} -eq 1 ]; then
+                        remote_stop ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                    fi
+                    # 从远程的中心服务器， 分发程序到各个 业务服务器上  
+                    remote_distribute ${SV_ROOT_PATH} ${SV_NAME} ${RS_PATH} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} "${YEAR}-${MONTH}-${DAY}"
+                    # 从远程的中心服务器， 启动各个 业务服务器上的程序
+                    remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done 
+            IFS=$O_IFS
+        fi
+    else 
+        # 发布部分服务
+        hash_get_one $1 $2
+        if [ $? -eq 0 ]; then
+            SV_HOST=$1
+            SV_NAME=$2
+        else
+            echo "no exit"
+        fi
+    fi
+    exit
+fi
+
+# 查看服务状态
+if [ $1 == "state" ]; then
+    shift
+    if [ $# -eq 1 ]; then
+        # 查看所有服务的状态
+        if [ $1 == "all" ]; then
+            O_IFS=$IFS
+            IFS=$'\n'
+            for ser_info in `cat ${OPS_SERVICE_MAP}`; do
+                ser_info=($ser_info)
+
+                SV_HOST="${ser_info[0]}"
+
+                IFS=' ' sers=${ser_info[1]}
+                IFS=',' read -a ser_arr <<< "${sers}"
+                for ser in ${ser_arr[@]}; do
+                    SV_NAME="${ser}"
+                    remote_state ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done
+        else 
+            # 查看指定服务名的所有ip上的服务状态，同台ip上多个service 则带后缀
+            IFS=' '
+            ret=`hash_get_all_ip_by_service $1`
+            if [ -z "${ret}" ]; then
+                echo "SERVICE $1 NOT DEDPLOY ON DEV OPS!!!"
+                exit
+            fi
+            
+            IFS=$'\n' 
+            for ser_info in $ret; do
+                IFS=' ' ser_info=($ser_info)
+                ser_num=${#ser_info[*]}
+
+                SV_HOST="${ser_info[0]}"
+                SV_NAME="$1"
+
+                for idx in `seq 1 $ser_num`; do
+                    remote_state ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done
+        fi
+    else
+        if [ $# -ne 2 ]; then
+            echo "Usage:        $0 state ip [all|login|online|gateway|switch|nickname|fighting|db|battle|rank|gamecenter]   --state gived ip's service" 
+            exit
+        fi
+
+        ret=`hash_get_all $1`
+        if [ -z "$ret" ] ;then
+            echo "IP $1 NOT DEDPLOY ON DEV OPS!!!"
+            exit
+        fi
+
+        # 查看指定ip上全部服务的状态
+        if [ $2 == "all" ] ;then
+            ser_info=($ret)
+
+            SV_HOST="$1"
+
+            sers=${ser_info[0]}
+            O_IFS=$IFS
+            IFS=',' read -a ser_arr <<< "${sers}"
+            for ser in ${ser_arr[@]}; do
+                SV_NAME="${ser}"
+                remote_state ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+            done
+            IFS=$O_IFS
+            exit
+        fi
+
+        # 查看指定ip 服务名 的状态
+        ret=`hash_get_one $1 $2`
+        if [ -z "$ret" ] ;then
+            echo "IP $1 SERVICE $2 NOT DEDPLOY ON DEV OPS!!!"
+            exit
+        fi
+
+        SV_HOST=$1
+        SV_NAME=$2
+        remote_state ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+    fi
+    exit
+fi
+
+if [ $1 == "start" ] ;then
+    shift
+    if [ $# -eq 1 ]; then
+        # 启动所有服
+        if [ $1 == "all" ]; then
+            IFS='\n'
+            for ser_info in `cat ${OPS_SERVICE_MAP}`; do
+                IFS=' ' ser_info=($ser_info)
+
+                SV_HOST="${ser_info[0]}"
+
+                sers=${ser_info[1]}
+                IFS=',' read -a ser_arr <<< "${sers}"
+                for ser in ${ser_arr[@]}; do
+                    SV_NAME="${ser}"
+                    remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done 
+            IFS=$O_IFS 
+        else
+            # 启动指定服务名的所有ip上的服务，同台ip上多个service 则带后缀
+            IFS=' '
+            ret=`hash_get_all_ip_by_service $1`
+            if [ -z "${ret}" ]; then
+                echo "SERVICE $1 NOT DEDPLOY ON DEV OPS!!!"
+                exit
+            fi
+
+            IFS=$'\n' 
+            for ser_info in $ret; do
+                IFS=' ' ser_info=($ser_info)
+                ser_num=${#ser_info[*]}
+
+                SV_HOST="${ser_info[0]}"
+                SV_NAME="$1"
+
+                for idx in `seq 1 $ser_num`; do
+                    remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done
+        fi
+    else
+        if [ $# -ne 2 ]; then
+            echo "Usage:        $0 start ip [all|login|online|gateway|switch|nickname|fighting|db|battle|rank|gamecenter]   --state gived ip's service" 
+            exit
+        fi
+
+        ret=`hash_get_all $1`
+        if [ -z $ret ] ;then
+            echo "IP $1 NOT DEDPLOY ON DEV OPS!!!"
+            exit
+        fi
+
+        # 启动指定ip上全部服务
+        if [ $2 == "all" ] ;then
+            ser_info=($ret)
+
+            SV_HOST="$1"
+
+            sers=${ser_info[0]}
+            O_IFS=$IFS
+            IFS=',' read -a ser_arr <<< "${sers}"
+            for ser in ${ser_arr[@]}; do
+                SV_NAME="${ser}"
+                remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+            done
+            IFS=$O_IFS
+            exit
+        fi
+
+        # 查看指定ip 服务名 的状态
+        ret=`hash_get_one $1 $2`
+        if [ -z $ret ] ;then
+            echo "IP $1 SERVICE $2 NOT DEDPLOY ON DEV OPS!!!"
+            exit
+        fi
+
+        SV_HOST=$1
+        SV_NAME=$2
+        remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+    fi
+    exit
+fi
+
+if [ $1 == "restart" ] ;then
+    shift
+    if [ $# -eq 1 ]; then
+        # 重启所有服
+        if [ $1 == "all" ]; then
+            IFS='\n'
+            for ser_info in `cat ${OPS_SERVICE_MAP}`; do
+                IFS=' ' ser_info=($ser_info)
+
+                SV_HOST="${ser_info[0]}"
+
+                sers=${ser_info[1]}
+                IFS=',' read -a ser_arr <<< "${sers}"
+                for ser in ${ser_arr[@]}; do
+                    SV_NAME="${ser}"
+                    remote_stop ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                    remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done 
+            IFS=$O_IFS 
+        else
+            # 重启指定服务名的所有ip上的服务，同台ip上多个service 则带后缀
+            IFS=' '
+            ret=`hash_get_all_ip_by_service $1`
+            if [ -z "${ret}" ]; then
+                echo "SERVICE $1 NOT DEDPLOY ON DEV OPS!!!"
+                exit
+            fi
+
+            IFS=$'\n' 
+            for ser_info in $ret; do
+                IFS=' ' ser_info=($ser_info)
+                ser_num=${#ser_info[*]}
+
+                SV_HOST="${ser_info[0]}"
+                SV_NAME="$1"
+
+                for idx in `seq 1 $ser_num`; do
+                    remote_stop ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                    remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                done
+            done
+        fi
+    else
+        if [ $# -ne 2 ]; then
+            echo "Usage:        $0 restart ip [all|login|online|gateway|switch|nickname|fighting|db|battle|rank|gamecenter]   --state gived ip's service" 
+            exit
+        fi
+
+        ret=`hash_get_all $1`
+        if [ -z $ret ] ;then
+            echo "IP $1 NOT DEDPLOY ON DEV OPS!!!"
+            exit
+        fi
+
+        # 重启指定ip上全部服务
+        if [ $2 == "all" ] ;then
+            ser_info=($ret)
+
+            SV_HOST="$1"
+
+            sers=${ser_info[0]}
+            O_IFS=$IFS
+            IFS=',' read -a ser_arr <<< "${sers}"
+            for ser in ${ser_arr[@]}; do
+                SV_NAME="${ser}"
+                remote_stop ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+                remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+            done
+            IFS=$O_IFS
+            exit
+        fi
+
+        # 重启指定ip 服务名 的状态
+        ret=`hash_get_one $1 $2`
+        if [ -z $ret ] ;then
+            echo "IP $1 SERVICE $2 NOT DEDPLOY ON DEV OPS!!!"
+            exit
+        fi
+
+        SV_HOST=$1
+        SV_NAME=$2
+        remote_stop ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+        remote_start ${SV_ROOT_PATH} ${SV_NAME} ${SV_HOST} ${SV_USER} ${SV_PASSWD} ${SV_PORT} ${RS_HOST} ${RS_USER} ${RS_PASSWD} ${RS_PORT} 
+    fi
+    exit
+fi
+
+usage
+exit
+

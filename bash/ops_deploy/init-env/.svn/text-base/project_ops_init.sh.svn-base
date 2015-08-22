@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+########################################################################
+#    File Name: project_ops_init.sh
+# 
+#       Author: Shootao Shanghai,Inc.
+#         Mail: aceway@shootao.com
+# Created Time: 2015年02月10日 星期二 10时34分44秒
+#  Description: 初始化本地系统环境为 项目运维环境的机器
+# 
+#                注意：该脚本需要独立可执行，不要依赖外部脚本，环境变量的
+#                      因为本文件将会被分发到远程机器，远程部署环境 
+########################################################################
+
+set -u
+set -e
+set -o errexit
+
+#
+#定义控制输出终端颜色的代码
+#
+FG_RED="\033[1;31m"
+FG_YELLOW="\033[1;33m"
+FG_GREEN="\033[1;32m"
+FG_BLUE="\033[0;34m"
+FG_GRAY="\033[1;37m"
+FG_LIGHT_RED="\033[0;31m"
+FG_LIGHT_GREEN="\033[0;32m"
+FG_LIGHT_BLUE="\033[0;34m"
+FG_LIGHT_YELLOW="\033[0;33m"
+FG_LIGHT_GRAY="\033[0;37m"
+END="\033[0;00m"
+
+#
+#功能说明：
+#   在本地批量自动安装文件
+#   函数内部检测帐号是否为root, 当是以root账户时直接执行安装，否则执行 sudo 安装-需要交互输入密码
+#
+#   对于远程服务器的安装，可以通过将本脚本上传上去后执行安装
+#
+#
+function install_package_list()
+{
+    if [ $# -gt 0 ];then
+        if [ ${USER} = "root" ];then
+            shift
+            pkg_list=$@
+            apt-get install --yes ${pkg_list}
+        else
+            pass=$1
+            shift
+            pkg_list=$@
+            echo "${pass}" | sudo -S apt-get install --yes ${pkg_list}
+        fi
+    else
+        echo -e "${FG_RED}参数不对,${END}Usage: \n\t${FG_YELLOW} ${FUNCNAME} package name list ${FG_GREEN} ${END}"
+        echo -e "\t ${FUNCNAME} $@"
+    fi
+}
+
+function install_project_env()
+{
+    if [ $# -eq 2 ] && [ -f $2 ];then
+        while read pkg
+        do   
+            if [ ! -z "${pkg}" ];then
+                pkgs="${pkgs} ${pkg}"
+            fi
+        done < $2
+        if [ ! -z "${pkgs}" ];then
+            install_package_list $1 ${pkgs}
+        else
+            echo -e "${FG_RED}Package list file is empty:${FG_YELLOW}$1!${END}"
+        fi
+    elif [ $# -gt 0 ] && [ ! -z ${2:0} ];then
+        pkgs=$@
+        if [ ${pkgs:0:1} = "." ] || [ ${pkgs:0:1} = "/" ];then
+            echo -e "${FG_RED}It is a file or package name:${FG_YELLOW}${pkgs}!${END}"
+        else
+            install_package_list $@
+        fi
+    else
+        echo -e "${FG_RED}参数不对,${END}Usage: \n\t${FG_YELLOW} ${FUNCNAME} package name list ${FG_GREEN} ${END}"
+        echo -e "\n\t${FG_YELLOW} ${FUNCNAME} package_list_file ${FG_GREEN} ${END}"
+        echo -e "\t ${FUNCNAME} $@"
+    fi
+}
+
+
+# 调用传入的password
+pass=$1
+
+#根据不同的环境依赖需要，在下面添加安装包
+#pkg_list="./pkg_list.txt"
+pkg_list="sshpass libxml2 libssl1.0.0 libglib2.0-0 libgd2-xpm curl libcurl3-gnutls libdb5.1 libdb5.1++"
+install_project_env ${pass} ${pkg_list}
+

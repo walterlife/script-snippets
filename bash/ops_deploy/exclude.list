@@ -1,0 +1,5 @@
+log
+*_leveldb
+bin/core
+.svn
+.txt

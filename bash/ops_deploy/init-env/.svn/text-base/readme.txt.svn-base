@@ -1,0 +1,6 @@
+1, base.sh, 实现基本功能的函数脚本, 供其它脚本调用
+2, init_remote_project_dev_env.sh,  用于执行的脚本: 远程初始化 游戏开发环境
+3, init_remote_project_ops_env.sh,  用于执行的脚本: 远程初始化 游戏运维环境
+4, project_dev_init.sh, 被 init_remote_project_dev_env.sh 发送到远程并在远程调用的脚本
+5, project_ops_init.sh, 被 init_remote_project_ops_env.sh 发送到远程并在远程调用的脚本
+6, readme.txt 本说明文档

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/rank
+END
+bind.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/rank/bind.tpl
+END
+bind.conf
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/rank/bind.conf
+END

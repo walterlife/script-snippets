@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+########################################################################
+#    File Name: cp _conf.sh
+# 
+#       Author: Shootao Shanghai,Inc.
+#         Mail: walter@shootao.com
+# Created Time: Tue 07 Apr 2015 04:25:34 PM CST
+#  Description: ...
+# 
+########################################################################
+
+cp  ./templates/db/*.conf ../../../build/tmp/build/db/etc
+
+cp  ./templates/gateway/*.conf ../../../build/tmp/build/gateway/etc
+cp  ./templates/gateway/*.xml ../../../build/tmp/build/gateway/bin/conf/
+
+cp  ./templates/login/*.conf  ../../../build/tmp/build/login/etc
+cp  ./templates/login/*.xml  ../../../build/tmp/build/login/bin/conf
+
+cp  ./templates/nickname/*.conf ../../../build/tmp/build/nickname/etc
+
+cp  ./templates/online/*.conf ../../../build/tmp/build/online/etc
+
+cp  ./templates/rank/*.conf ../../../build/tmp/build/rank/etc
+
+cp  ./templates/switch/*.conf ../../../build/tmp/build/switch/etc
+cp  ./templates/switch/*.xml  ../../../build/tmp/build/switch/bin/conf

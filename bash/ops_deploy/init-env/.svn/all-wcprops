@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/aturtle/server/!svn/ver/818/tools/bash/init-env
+END
+project_dev_init.sh
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/aturtle/server/!svn/ver/492/tools/bash/init-env/project_dev_init.sh
+END
+base.sh
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/aturtle/server/!svn/ver/86/tools/bash/init-env/base.sh
+END
+init_remote_project_dev_env.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/aturtle/server/!svn/ver/75/tools/bash/init-env/init_remote_project_dev_env.sh
+END
+project_ops_init.sh
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/aturtle/server/!svn/ver/818/tools/bash/init-env/project_ops_init.sh
+END
+init_remote_project_ops_env.sh
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/aturtle/server/!svn/ver/817/tools/bash/init-env/init_remote_project_ops_env.sh
+END
+readme.txt
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/aturtle/server/!svn/ver/75/tools/bash/init-env/readme.txt
+END

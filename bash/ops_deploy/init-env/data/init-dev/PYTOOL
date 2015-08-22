@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+########################################################################
+#    File Name: PYTOOL.py
+# 
+#       Author: Shootao Shanghai,Inc.
+#         Mail: walter@shootao.com
+# Created Time: Mon 06 Jul 2015 05:56:16 PM CST
+#  Description: ...
+#                
+########################################################################
+
+
+if __name__ == '__main__':
+    import sys
+    import socket, struct
+    import time, string
+
+    if len(sys.argv) != 3:
+        print "{p} ip2num | num2ip | st2tm | tm2st !!!".format(p = sys.argv[0])
+        sys.exit(0)
+    arg = sys.argv[1]
+    val = sys.argv[2]
+
+    if not isinstance(val, (basestring, )) :
+        print "{p} args error!!!".format(p=val)
+        sys.exit(0)
+    if arg == "ip2num":
+       print socket.ntohl(struct.unpack('!L', socket.inet_aton(val))[0])
+    elif arg == "num2ip":
+        print socket.inet_ntoa(struct.pack('!I', socket.htonl(string.atoi(val))))
+    elif arg == "st2tm":
+        print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(string.atoi(val)))
+    elif arg == "tm2st":
+        print (time.mktime(time.strptime(val, "%Y-%m-%d %H:%M:%S")))
+    else :
+        pass

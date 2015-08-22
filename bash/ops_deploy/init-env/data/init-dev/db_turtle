@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+clear
+db="DB_TURTLE_0"
+host="localhost"
+user="turtlemgr"
+pass='Turt13@Pw6'
+pmt='--prompt=\R:\m:\s-\U-\d-MySQL>'
+charset='--default-character-set=utf8'
+mysql -h${host} -u${user} -p${pass} ${db} ${pmt} ${charset}

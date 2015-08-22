@@ -1,0 +1,163 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+########################################################################
+#    File Name: settings.py
+# 
+#       Author: Shootao Shanghai,Inc.
+#         Mail: walter@shootao.com
+# Created Time: Tue 07 Apr 2015 01:23:41 PM CST
+#  Description: ...
+#                
+########################################################################
+
+import os
+import sys
+
+templates_path = os.path.join(os.path.dirname(__file__), "templates")
+
+server_ip = "10.1.15.19"
+usage = "walter"
+min = "2"    #表示生产环境
+mid = "74"  #多个online时递增
+pname = "aturtle"
+game_id = 92
+#use for gateway
+gc_ip = "10.1.15.19"
+gc_port = "27408"
+
+tpl_values = {
+        'db': {
+            'bind':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+            },
+            'bench':{
+                'min': min, 
+                'mid': mid,
+                'db_user' : "turtlemgr",
+                'db_passwd' : "Turt13@Pw6",
+            },
+        },
+
+        'gateway' : {
+            'bind':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+            'bench':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname' : pname,
+                'gmid': game_id,
+                'gcip': gc_ip,
+                'gcport': gc_port,
+            },
+            'xml':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+        },
+
+        'login' : {
+            'bind':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+            'bench':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname' : pname,
+                'game_id' : game_id,
+            },
+            'xml':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+        },
+
+        'online' : {
+            'bind':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+            'bench':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname' : pname,
+            },
+            'common':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+            },
+        },
+
+        'rank' : {
+            'bind':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+        },
+
+        'switch' : {
+            'bind':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+            'bench':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname' : pname,
+                'game_id' : game_id,
+            },
+            'xml':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+        },
+
+        'nickname' : {
+            'bind':{
+                'server_ip' : server_ip, 
+                'min': min, 
+                'mid': mid,
+                'pname': pname,
+                'usage': usage,
+            },
+            'bench':{
+                'pname' : pname,
+                'game_id' : game_id,
+            },
+        },
+
+}
+

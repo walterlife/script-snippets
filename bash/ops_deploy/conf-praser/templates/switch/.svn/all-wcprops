@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/switch
+END
+bench.conf
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/switch/bench.conf
+END
+db_server.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/switch/db_server.tpl
+END
+bind.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/switch/bind.tpl
+END
+db_server.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/switch/db_server.xml
+END
+bench.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/switch/bench.tpl
+END
+bind.conf
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/switch/bind.conf
+END

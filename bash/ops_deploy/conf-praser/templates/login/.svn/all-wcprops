@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/login
+END
+db_server.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/login/db_server.tpl
+END
+online_server.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/login/online_server.xml
+END
+bind.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/login/bind.tpl
+END
+db_server.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/login/db_server.xml
+END
+login_server.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/login/login_server.tpl
+END
+bench.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/login/bench.tpl
+END
+login_server.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/login/login_server.xml
+END
+bind.conf
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/login/bind.conf
+END
+bench.conf
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/aturtle/server/!svn/ver/1534/release/tools/conf-praser/templates/login/bench.conf
+END
+online_server.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/aturtle/server/!svn/ver/698/release/tools/conf-praser/templates/login/online_server.tpl
+END

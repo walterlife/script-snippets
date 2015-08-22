@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#set -x
+
+function hash_init() {
+    rm -f "${OPS_SERVICE_MAP}"
+} 
+
+function hash_put() {
+    echo ",$@" >> "${OPS_SERVICE_MAP}"
+} 
+
+function hash_get_all() {
+    grep -w "$1" "${OPS_SERVICE_MAP}" | awk '{print $2}' 
+} 
+
+function hash_get_one() {
+    grep -w "${1}" "${OPS_SERVICE_MAP}" | awk '{print $2}' | grep -w "${2}" 
+} 
+
+function hash_get_all_ip_by_service() {
+    grep "\b${1}" "${OPS_SERVICE_MAP}" | awk '{print $0}' 
+} 
+
+#if [ $# -lt 1 ]; then 
+    #echo "$0 arguments must be lager than or euqal with 1!!"
+    #exit
+#fi
+
+#case $1 in
+    #"init") :
+        #hash_init
+        #;;
+    #"put") :
+        #shift; hash_put $@
+        #;;
+    #"get") :
+        #shift; hash_get $@
+        #;;
+#esac

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/aturtle/server/!svn/ver/75/tools/bash/init-env/data/init-dev
+END
+bashrc
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/aturtle/server/!svn/ver/75/tools/bash/init-env/data/init-dev/bashrc
+END
+subversion_config
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/aturtle/server/!svn/ver/75/tools/bash/init-env/data/init-dev/subversion_config
+END
+vimrc
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/aturtle/server/!svn/ver/75/tools/bash/init-env/data/init-dev/vimrc
+END
